@@ -1,64 +1,32 @@
-import React, { useState } from 'react';
-import axios from 'axios';
-import emailjs from '@emailjs/browser';
+import FormEvent from '../FormEvent';
 
-const CreateEvent = () => {
-    const [event, setEvent] = useState({
-        eventName: '', location: '', date: '', organizer: '', description: ''
-    });
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        try {
-            // 1. Save to MongoDB
-            await axios.post('http://localhost:5000/api/events', event);
-            
-            // 2. Send Email via EmailJS
-            emailjs.send(
-                'service_e761yci', 
-                'template_xaeuqza', 
-                {
-                    event_name: event.eventName,
-                    organizer_name: event.organizer,
-                    to_email: '20255221@s.ubaguio.edu'
-                }, 
-                'feahIeQ5KRf17OGTk'
-            );
-
-            alert("Event Created and Email Sent!");
-        } catch (error) {
-            console.error("Error saving event", error);
-        }
-    };
-
-    return (
-        <div className="container mt-5">
-            <h2 className="mb-4">Create Community Event</h2>
-            <form onSubmit={handleSubmit} className="card p-4 shadow">
-                <div className="mb-3">
-                    <label>Event Name</label>
-                    <input type="text" className="form-control" onChange={(e) => setEvent({...event, eventName: e.target.value})} required />
-                </div>
-                <div className="mb-3">
-                    <label>Location</label>
-                    <input type="text" className="form-control" onChange={(e) => setEvent({...event, location: e.target.value})} required />
-                </div>
-                <div className="mb-3">
-                    <label>Date</label>
-                    <input type="date" className="form-control" onChange={(e) => setEvent({...event, date: e.target.value})} required />
-                </div>
-                <div className="mb-3">
-                    <label>Organizer</label>
-                    <input type="text" className="form-control" onChange={(e) => setEvent({...event, organizer: e.target.value})} required />
-                </div>
-                <div className="mb-3">
-                    <label>Description</label>
-                    <textarea className="form-control" onChange={(e) => setEvent({...event, description: e.target.value})} required />
-                </div>
-                <button type="submit" className="btn btn-primary">Publish Event</button>
-            </form>
+export default function CreateEvent() {
+  return (
+    <div className="grid lg:grid-cols-3 gap-16 items-start">
+      {/* Left side info */}
+      <div className="lg:col-span-1 lg:sticky lg:top-28">
+        <span className="inline-block px-4 py-1 rounded-full bg-cyan-100 text-cyan-800 text-xs font-semibold mb-3">
+          Host Section
+        </span>
+        <h1 className="text-5xl font-extrabold tracking-tighter text-slate-950 mb-5">
+          Launch your <span className="text-indigo-600">Initiative</span>
+        </h1>
+        <p className="text-slate-600 leading-relaxed mb-8">
+          Fill out the details to the right. Once submitted, your event will appear instantly on the public dashboard for thousands to see.
+        </p>
+        
+        <div className="bg-slate-950 p-6 rounded-2xl text-slate-300 text-sm space-y-3 border border-slate-800">
+          <p className="font-semibold text-white">Submission Tips:</p>
+          <p>• Use a catchy, clear title.</p>
+          <p>• Ensure venue details are precise.</p>
+          <p>• Make description engaging and informative.</p>
         </div>
-    );
-};
+      </div>
 
-export default CreateEvent;
+      {/* Right side Form */}
+      <div className="lg:col-span-2">
+        <FormEvent />
+      </div>
+    </div>
+  );
+}
