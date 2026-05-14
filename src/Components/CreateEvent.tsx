@@ -1,192 +1,86 @@
-
 import React, { useState } from 'react';
-import axios from 'axios';
-import emailjs from '@emailjs/browser';
 import { useNavigate } from 'react-router-dom';
 
-const CreateEvent = () => {
+export interface EventItem {
+  organizer: string;
+  title: string;
+  date: string;
+  venue: string;
+  description: string;
+}
 
+interface CreateEventProps {
+  addEvent: (e: EventItem) => void;
+}
+
+function CreateEvent({ addEvent }: CreateEventProps) {
   const navigate = useNavigate();
-
-  const [event, setEvent] = useState({
-
-    eventName: '',
-    location: '',
-    date: '',
-    organizer: '',
-    description: ''
-
+  const [form, setForm] = useState<EventItem>({ 
+    organizer: '', 
+    title: '', 
+    date: '', 
+    venue: '', 
+    description: '' 
   });
 
-  const handleSubmit = async (
-    e: React.FormEvent
-  ) => {
-
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     try {
-
-      // SAVE EVENT
-      await axios.post(
-        'http://localhost:5000/api/events',
-        event
-      );
-
-      // SEND EMAIL
-      await emailjs.send(
-
-        'service_e761yci',
-        'template_xaeuqza',
-
-        {
-          event_name: event.eventName,
-          organizer_name: event.organizer,
-          to_email: '20255221@s.ubaguio.edu'
+      // 1. Send the data to your Express backend
+      const response = await fetch('http://localhost:5000/events', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
         },
+        body: JSON.stringify(form), // Convert the form state to a JSON string
+      });
 
-        'feahIeQ5KRf17OGTk'
-
-      );
-
-      alert(
-        "Event Created Successfully!"
-      );
-
-      navigate('/');
-
+      if (response.ok) {
+        const data = await response.json();
+        console.log("Success:", data.message);
+        
+        // 2. Update local React state (optional, if you still need it)
+        addEvent(form); 
+        
+        // 3. Navigate away
+        navigate('/events');
+      } else {
+        console.error('Failed to save event to the database');
+      }
     } catch (error) {
-
-      console.error(error);
-
+      console.error('Error connecting to the server:', error);
     }
   };
 
   return (
-
-    <div className="container mt-5">
-
-      <div className="card shadow p-4">
-
-        <h2 className="text-primary mb-4">
-          Create Community Event
-        </h2>
-
-        <form onSubmit={handleSubmit}>
-
-          <div className="mb-3">
-
-            <label>
-              Event Name
-            </label>
-
-            <input
-              type="text"
-              className="form-control"
-              required
-              onChange={(e) =>
-                setEvent({
-                  ...event,
-                  eventName: e.target.value
-                })
-              }
-            />
-
-          </div>
-
-          <div className="mb-3">
-
-            <label>
-              Location
-            </label>
-
-            <input
-              type="text"
-              className="form-control"
-              required
-              onChange={(e) =>
-                setEvent({
-                  ...event,
-                  location: e.target.value
-                })
-              }
-            />
-
-          </div>
-
-          <div className="mb-3">
-
-            <label>
-              Date
-            </label>
-
-            <input
-              type="date"
-              className="form-control"
-              required
-              onChange={(e) =>
-                setEvent({
-                  ...event,
-                  date: e.target.value
-                })
-              }
-            />
-
-          </div>
-
-          <div className="mb-3">
-
-            <label>
-              Organizer
-            </label>
-
-            <input
-              type="text"
-              className="form-control"
-              required
-              onChange={(e) =>
-                setEvent({
-                  ...event,
-                  organizer: e.target.value
-                })
-              }
-            />
-
-          </div>
-
-          <div className="mb-3">
-
-            <label>
-              Description
-            </label>
-
-            <textarea
-              className="form-control"
-              required
-              rows={4}
-              onChange={(e) =>
-                setEvent({
-                  ...event,
-                  description: e.target.value
-                })
-              }
-            />
-
-          </div>
-
-          <button
-            type="submit"
-            className="btn btn-primary w-100"
-          >
-            Publish Event
-          </button>
-
-        </form>
-
-      </div>
-
+    <div className="glass-card">
+      <h2>Create Community Event</h2>
+      <form className="sdg-form" onSubmit={handleSubmit}>
+        <div className="input-group">
+          <label>Organizer Name</label>
+          <input required onChange={e => setForm({...form, organizer: e.target.value})} />
+        </div>
+        <div className="input-group">
+          <label>Event Title</label>
+          <input required onChange={e => setForm({...form, title: e.target.value})} />
+        </div>
+        <div className="input-group">
+          <label>Date</label>
+          <input type="date" required onChange={e => setForm({...form, date: e.target.value})} />
+        </div>
+        <div className="input-group">
+          <label>Venue</label>
+          <input required onChange={e => setForm({...form, venue: e.target.value})} />
+        </div>
+        <div className="input-group">
+          <label>Description</label>
+          <textarea required onChange={e => setForm({...form, description: e.target.value})} />
+        </div>
+        <button type="submit" className="btn-primary">Submit Event</button>
+      </form>
     </div>
-
   );
-};
+}
 
 export default CreateEvent;
