@@ -1,33 +1,54 @@
-const express = require('express');
-const mongoose = require('mongoose');
-const cors = require('cors');
-
+const express = require("express");
+const mongoose = require("mongoose");
+const cors = require("cors");
 const app = express();
+
 app.use(cors());
 app.use(express.json());
 
-// Connect to MongoDB
-mongoose.connect('mongodb://localhost:27017/eventsDB');
+// ⚠️ Move this to a .env file in production! (e.g., process.env.MONGO_URI)
+mongoose.connect("mongodb+srv://LeAnn123:leannlazaro123@cluster0.8hkc2mo.mongodb.net/PortfolioFinal?retryWrites=true&w=majority")
+.then(() => console.log("MongoDB Connected Successfully")) 
+.catch(console.error);
 
+// --- CONTACT / PORTFOLIO SCHEMA (Existing) ---
+const userSchema = new mongoose.Schema({
+   name: String,
+   email: String,
+   message: String
+});
+const User = mongoose.model("Portfolio", userSchema, "Portfolio");
+
+app.post("/contact", async (req, res) => {
+    try {
+      const user = await User.create(req.body);
+      res.json({ message: "Message sent successfully.", user });
+    } catch(err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// --- NEW: EVENT SCHEMA AND ROUTE ---
 const eventSchema = new mongoose.Schema({
+  organizer: String,
   title: String,
   date: String,
-  description: String,
-  email: String
+  venue: String,
+  description: String
 });
 
-const Event = mongoose.model('Event', eventSchema);
+const Event = mongoose.model("Event", eventSchema);
 
-// Routes
-app.get('/api/events', async (req, res) => {
-  const events = await Event.find();
-  res.json(events);
+app.post("/events", async (req, res) => {
+    try {
+      // Create and save the new event to MongoDB
+      const newEvent = await Event.create(req.body);
+      res.status(201).json({ message: "Event created successfully.", event: newEvent });
+    } catch(err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
-app.post('/api/events', async (req, res) => {
-  const newEvent = new Event(req.body);
-  await newEvent.save();
-  res.status(201).json(newEvent);
+app.listen(5000, () => {
+    console.log("The Server Successfully connected to port 5000");
 });
-
-app.listen(5000, () => console.log('Server running on port 5000'));
