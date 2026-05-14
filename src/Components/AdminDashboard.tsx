@@ -1,73 +1,99 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
-export interface Message {
+interface Message {
+  _id: string;
   name: string;
   email: string;
   message: string;
 }
 
-export interface EventItem {
-  organizer: string;
-  title: string;
-  date: string;
-  venue: string;
-  description: string;
-}
+function AdminDashboard() {
+  const [messages, setMessages] = useState<Message[]>([]);
 
-interface AdminProps {
-  messages: Message[];
-  setMessages: React.Dispatch<React.SetStateAction<Message[]>>;
-}
+  // get all messages from mongodb
+  useEffect(() => {
+    fetch('http://localhost:5000/api/messages')
+      .then(res => res.json())
+      .then(data => setMessages(data))
+      .catch(err => console.error('Error fetching messages:', err));
+  }, []);
 
-function AdminDashboard({ messages, setMessages }: AdminProps) {
-  const deleteMsg = (index: number) => {
-    const updated = messages.filter((_, i) => i !== index);
-    setMessages(updated);
+  const deleteMsg = async (id: string) => {
+    try {
+      await fetch(`http://localhost:5000/api/messages/${id}`, { method: 'DELETE' });
+      setMessages(messages.filter(m => m._id !== id));
+    } catch (err) {
+      console.error('Error deleting message:', err);
+    }
+  };
+
+  const deleteAll = async () => {
+    for (const msg of messages) {
+      await fetch(`http://localhost:5000/api/messages/${msg._id}`, { method: 'DELETE' });
+    }
+    setMessages([]);
   };
 
   return (
-    <div className="glass-card" style={{ maxWidth: '950px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h2>Admin Control Center</h2>
-        <button onClick={() => window.location.href='/'} className="btn-primary" style={{ background: '#333' }}>
-          Log Out
-        </button>
+    <div className="row justify-content-center">
+      <div className="col-md-11">
+        <div className="card shadow">
+          <div className="card-body p-4">
+            <div className="d-flex justify-content-between align-items-center mb-4">
+              <h2 className="card-title text-success mb-0">Admin Control Center</h2>
+              <button
+                onClick={() => window.location.href = '/'}
+                className="btn btn-dark"
+              >
+                Log Out
+              </button>
+            </div>
+
+            <div className="table-responsive">
+              <table className="table table-striped table-bordered align-middle">
+                <thead className="table-success">
+                  <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Message</th>
+                    <th style={{ width: '100px' }}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {messages.length === 0 ? (
+                    <tr>
+                      <td colSpan={4} className="text-center py-4 text-muted">No messages yet.</td>
+                    </tr>
+                  ) : (
+                    messages.map((m) => (
+                      <tr key={m._id}>
+                        <td>{m.name}</td>
+                        <td>{m.email}</td>
+                        <td>{m.message}</td>
+                        <td>
+                          <button
+                            onClick={() => deleteMsg(m._id)}
+                            className="btn btn-danger btn-sm"
+                          >
+                            Delete
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+
+            {messages.length > 0 && (
+              <button onClick={deleteAll} className="btn btn-danger mt-2">
+                Delete All
+              </button>
+            )}
+
+          </div>
+        </div>
       </div>
-      
-      <table style={{ width: '100%', background: 'white', color: '#333', borderRadius: '10px', marginTop: '1rem', borderCollapse: 'collapse' }}>
-        <thead>
-          <tr style={{ background: '#eee', textAlign: 'left' }}>
-            <th style={{ padding: '10px' }}>Name</th>
-            <th>Email</th>
-            <th>Message</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {messages.length === 0 ? (
-            <tr><td colSpan={4} style={{ textAlign: 'center', padding: '20px' }}>No messages yet.</td></tr>
-          ) : (
-            messages.map((m, i) => (
-              <tr key={i} style={{ borderBottom: '1px solid #eee' }}>
-                <td style={{ padding: '10px' }}>{m.name}</td>
-                <td>{m.email}</td>
-                <td>{m.message}</td>
-                <td>
-                  <button onClick={() => deleteMsg(i)} style={{ background: '#ff4d4d', color: 'white', border: 'none', padding: '5px 10px', borderRadius: '4px', cursor: 'pointer' }}>
-                    Delete
-                  </button>
-                </td>
-              </tr>
-            ))
-          )}
-        </tbody>
-      </table>
-      
-      {messages.length > 0 && (
-        <button onClick={() => setMessages([])} className="btn-primary" style={{ marginTop: '1rem', background: 'red' }}>
-          Delete All
-        </button>
-      )}
     </div>
   );
 }

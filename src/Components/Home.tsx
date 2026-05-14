@@ -1,10 +1,21 @@
 function Home() {
   return (
-    <div className="glass-card">
-      <h1>Sustainable Cities</h1>
-      <p>Building resilient, inclusive, and sustainable urban environments for the future.This can help to our community to make the world peace.
-      Voluntary and participate on each events</p>
+    <div className="row justify-content-center">
+      <div className="col-md-8 col-lg-7">
+        <div className="card shadow text-center p-4">
+          <div className="card-body">
+            <div className="display-1 mb-3">🌿</div>
+            <h1 className="card-title text-success">Sustainable Cities</h1>
+            <p className="card-text lead mt-3">
+              Building resilient, inclusive, and sustainable urban environments for the future.
+              This can help to our community to make the world peace.
+              Voluntary and participate on each events.
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
+
 export default Home;

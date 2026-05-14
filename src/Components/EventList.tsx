@@ -1,33 +1,52 @@
-export interface Message {
-  name: string;
-  email: string;
-  message: string;
-}
+import React, { useState, useEffect } from 'react';
 
-export interface EventItem {
+interface EventItem {
+  _id: string;
   organizer: string;
   title: string;
   date: string;
   venue: string;
   description: string;
 }
-interface EventListProps {
-  events: EventItem[];
-}
 
-function EventList({ events }: EventListProps) {
+function EventList() {
+  const [events, setEvents] = useState<EventItem[]>([]);
+
+  useEffect(() => {
+    fetch('http://localhost:5000/api/events')
+      .then(res => res.json())
+      .then(data => setEvents(data))
+      .catch(err => console.error('Error fetching events:', err));
+  }, []);
+
   return (
-    <div className="glass-card">
-      <h2>Sustainable Community Events</h2>
-      {events.map((ev, i) => (
-        <div key={i} className="sdg-form" style={{ marginBottom: '1rem', textAlign: 'center' }}>
-          <h3>{ev.title}</h3>
-          <p><strong>Organizer:</strong> {ev.organizer} | <strong>Venue:</strong> {ev.venue}</p>
-          <p><strong>Date:</strong> {ev.date}</p>
-          <hr />
-          <p>{ev.description}</p>
+    <div className="row justify-content-center">
+      <div className="col-md-9 col-lg-8">
+        <div className="card shadow mb-4">
+          <div className="card-body p-4">
+            <h2 className="card-title text-success mb-4">Sustainable Community Events</h2>
+
+            {events.length === 0 ? (
+              <p className="text-muted text-center py-3">No events yet. Be the first to create one!</p>
+            ) : (
+              events.map((ev) => (
+                <div key={ev._id} className="card mb-3 border-success">
+                  <div className="card-body text-center">
+                    <h4 className="card-title text-success">{ev.title}</h4>
+                    <p className="mb-1">
+                      <strong>Organizer:</strong> {ev.organizer} &nbsp;|&nbsp; <strong>Venue:</strong> {ev.venue}
+                    </p>
+                    <p className="mb-2"><strong>Date:</strong> {ev.date}</p>
+                    <hr />
+                    <p className="card-text text-muted">{ev.description}</p>
+                  </div>
+                </div>
+              ))
+            )}
+
+          </div>
         </div>
-      ))}
+      </div>
     </div>
   );
 }

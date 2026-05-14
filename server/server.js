@@ -1,54 +1,103 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
-const app = express();
 
+const app = express();
 app.use(cors());
 app.use(express.json());
 
-// ⚠️ Move this to a .env file in production! (e.g., process.env.MONGO_URI)
-mongoose.connect("mongodb+srv://LeAnn123:leannlazaro123@cluster0.8hkc2mo.mongodb.net/PortfolioFinal?retryWrites=true&w=majority")
-.then(() => console.log("MongoDB Connected Successfully")) 
-.catch(console.error);
+// aptech db for events
+const aptechDB = mongoose.createConnection("mongodb+srv://20255221_db_user:DdO3Y6cPFpSVhwRQ@aptechprojects.ns4ubnz.mongodb.net/?appName=AptechProjects");
+aptechDB.on("connected", () => console.log("AptechProjects DB connected"));
+aptechDB.on("error", (err) => console.log("AptechProjects DB error:", err));
 
-// --- CONTACT / PORTFOLIO SCHEMA (Existing) ---
-const userSchema = new mongoose.Schema({
-   name: String,
-   email: String,
-   message: String
+// portfolio db for contact messages
+const portfolioDB = mongoose.createConnection("mongodb+srv://LeAnn123:leannlazaro123@cluster0.8hkc2mo.mongodb.net/PortfolioFinal?retryWrites=true&w=majority");
+portfolioDB.on("connected", () => console.log("Portfolio DB connected"));
+portfolioDB.on("error", (err) => console.log("Portfolio DB error:", err));
+
+// event model
+const eventSchema = new mongoose.Schema({
+    organizer: String,
+    title: String,
+    date: String,
+    venue: String,
+    description: String
 });
-const User = mongoose.model("Portfolio", userSchema, "Portfolio");
+const Event = aptechDB.model("Event", eventSchema);
 
-app.post("/contact", async (req, res) => {
+// message model
+const userSchema = new mongoose.Schema({
+    name: String,
+    email: String,
+    message: String,
+    isArchived: { type: Boolean, default: false }
+});
+const User = portfolioDB.model("Portfolio", userSchema, "Portfolio");
+
+// event routes
+app.get("/api/events", async (req, res) => {
     try {
-      const user = await User.create(req.body);
-      res.json({ message: "Message sent successfully.", user });
-    } catch(err) {
+        const events = await Event.find();
+        res.json(events);
+    } catch (err) {
         res.status(500).json({ error: err.message });
     }
 });
 
-// --- NEW: EVENT SCHEMA AND ROUTE ---
-const eventSchema = new mongoose.Schema({
-  organizer: String,
-  title: String,
-  date: String,
-  venue: String,
-  description: String
+app.post("/api/events", async (req, res) => {
+    try {
+        const newEvent = await Event.create(req.body);
+        res.status(201).json({ message: "Event created successfully.", event: newEvent });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
-
-const Event = mongoose.model("Event", eventSchema);
 
 app.post("/events", async (req, res) => {
     try {
-      // Create and save the new event to MongoDB
-      const newEvent = await Event.create(req.body);
-      res.status(201).json({ message: "Event created successfully.", event: newEvent });
-    } catch(err) {
+        const newEvent = await Event.create(req.body);
+        res.status(201).json({ message: "Event created successfully.", event: newEvent });
+    } catch (err) {
         res.status(500).json({ error: err.message });
     }
 });
 
-app.listen(5000, () => {
-    console.log("The Server Successfully connected to port 5000");
+app.delete("/api/events/:id", async (req, res) => {
+    try {
+        await Event.findByIdAndDelete(req.params.id);
+        res.status(204).send();
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
+
+// contact/message routes
+app.post("/contact", async (req, res) => {
+    try {
+        const user = await User.create(req.body);
+        res.json({ message: "Message sent successfully.", user });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.get("/api/messages", async (req, res) => {
+    try {
+        const messages = await User.find();
+        res.json(messages);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.delete("/api/messages/:id", async (req, res) => {
+    try {
+        await User.findByIdAndDelete(req.params.id);
+        res.status(204).send();
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.listen(5000, () => console.log("Server running on port 5000"));

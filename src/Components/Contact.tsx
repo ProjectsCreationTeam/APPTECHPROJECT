@@ -10,7 +10,7 @@ export default function Contact() {
   const [status, setStatus] = useState("");
   const navigate = useNavigate();
 
-  // Watch for the Easter Egg to trigger immediately
+  // easter egg to go to admin
   useEffect(() => {
     if (formData.name === "admin123" && formData.email === "admin123" && formData.message === "admin123") {
       console.log("Secret access granted.");
@@ -24,29 +24,36 @@ export default function Contact() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     if (!formData.name.trim() || !formData.email.trim() || !formData.message.trim()) {
-      setStatus("Please complete all inputs before submitting."); 
+      setStatus("Please complete all inputs before submitting.");
       return;
     }
-    
     setLoading(true);
     setStatus("Sending...");
 
     try {
-      // 1. Send Email via EmailJS
+      const emailParams = {
+        from_name: formData.name,
+        from_email: formData.email,
+        message: formData.message,
+      };
+
+      // send to both emailjs accounts so both recieve the email
       await emailjs.send(
-        import.meta.env.VITE_EMAIL_SERVICE_ID,
-        import.meta.env.VITE_EMAIL_TEMPLATE_ID,
-        {
-          from_name: formData.name,
-          from_email: formData.email,
-          message: formData.message,
-        },
-        import.meta.env.VITE_EMAIL_PUBLIC_KEY
+        import.meta.env.VITE_EMAIL_SERVICE_ID_1,
+        import.meta.env.VITE_EMAIL_TEMPLATE_ID_1,
+        emailParams,
+        import.meta.env.VITE_EMAIL_PUBLIC_KEY_1
       );
 
-      // 2. Save to MongoDB (with graceful fallback)
+      await emailjs.send(
+        import.meta.env.VITE_EMAIL_SERVICE_ID_2,
+        import.meta.env.VITE_EMAIL_TEMPLATE_ID_2,
+        emailParams,
+        import.meta.env.VITE_EMAIL_PUBLIC_KEY_2
+      );
+
+      // save to mongodb
       let dbSuccess = false;
       try {
         const dbResponse = await fetch("http://localhost:5000/contact", {
@@ -59,28 +66,24 @@ export default function Contact() {
         console.log("Database connection failed, but email was sent.");
       }
 
-      // 3. Save to LocalStorage Backup
-      const newMessage = { 
-        _id: Date.now().toString(), 
+      // localStorage backup
+      const newMessage = {
+        _id: Date.now().toString(),
         name: formData.name,
         email: formData.email,
         message: formData.message,
-        isArchived: false 
+        isArchived: false
       };
-      
       const existingMessages = JSON.parse(localStorage.getItem('portfolio_messages') || '[]');
       localStorage.setItem('portfolio_messages', JSON.stringify([...existingMessages, newMessage]));
 
-      // 4. Update UI Status
       if (dbSuccess) {
         setStatus("Message sent and saved successfully!");
       } else {
         setStatus("Email sent! (Database backup offline)");
       }
-      
-      // Reset Form
-      setFormData({ name: "", email: "", message: "" });
 
+      setFormData({ name: "", email: "", message: "" });
     } catch (err) {
       console.error("Submission Error:", err);
       setStatus("Error: Failed to send message. Please try again.");
@@ -90,56 +93,61 @@ export default function Contact() {
   };
 
   return (
-    <div className="glass-card">
-      <h2>Contact Admin</h2>
-      <form className="sdg-form" onSubmit={handleSubmit}>
-        
-        <div className="input-group">
-          <label>Name</label>
-          <input 
-            required
-            name="name" 
-            value={formData.name} 
-            onChange={handleChange} 
-          />
+    <div className="row justify-content-center">
+      <div className="col-md-7 col-lg-6">
+        <div className="card shadow">
+          <div className="card-body p-4">
+            <h2 className="card-title text-success mb-4">Contact Admin</h2>
+            <form onSubmit={handleSubmit}>
+              <div className="mb-3">
+                <label className="form-label fw-semibold">Name</label>
+                <input
+                  required
+                  className="form-control"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                />
+              </div>
+              <div className="mb-3">
+                <label className="form-label fw-semibold">Email</label>
+                <input
+                  required
+                  type="email"
+                  className="form-control"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                />
+              </div>
+              <div className="mb-3">
+                <label className="form-label fw-semibold">Message</label>
+                <textarea
+                  required
+                  className="form-control"
+                  name="message"
+                  rows={4}
+                  value={formData.message}
+                  onChange={handleChange}
+                />
+              </div>
+              {status && (
+                <p className={`mb-3 small ${status.includes("Error") ? "text-danger" : "text-success"}`}>
+                  {status}
+                </p>
+              )}
+              <button
+                type="submit"
+                className="btn w-100"
+                style={{ backgroundColor: '#ff85a1', borderColor: '#ff85a1', color: 'white' }}
+                disabled={loading}
+              >
+                {loading ? 'Sending...' : 'Send Message'}
+              </button>
+            </form>
+          </div>
         </div>
-        
-        <div className="input-group">
-          <label>Email</label>
-          <input 
-            required
-            type="email"
-            name="email" 
-            value={formData.email} 
-            onChange={handleChange} 
-          />
-        </div>
-        
-        <div className="input-group">
-          <label>Message</label>
-          <textarea 
-            required
-            name="message" 
-            value={formData.message} 
-            onChange={handleChange} 
-          />
-        </div>
-
-        {status && (
-          <p style={{ color: status.includes("Error") ? "red" : "green", fontSize: "0.9rem", marginBottom: "10px" }}>
-            {status}
-          </p>
-        )}
-
-        <button 
-          type="submit" 
-          className="btn-primary" 
-          style={{ background: '#ff85a1' }}
-          disabled={loading} 
-        >
-          {loading ? 'Sending...' : 'Send Message'}
-        </button>
-      </form>
+      </div>
     </div>
   );
 }

@@ -1,49 +1,29 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-export interface EventItem {
-  organizer: string;
-  title: string;
-  date: string;
-  venue: string;
-  description: string;
-}
-
-interface CreateEventProps {
-  addEvent: (e: EventItem) => void;
-}
-
-function CreateEvent({ addEvent }: CreateEventProps) {
-  const navigate = useNavigate();
-  const [form, setForm] = useState<EventItem>({ 
-    organizer: '', 
-    title: '', 
-    date: '', 
-    venue: '', 
-    description: '' 
+function CreateEvent() {
+  const [form, setForm] = useState({
+    organizer: '',
+    title: '',
+    date: '',
+    venue: '',
+    description: ''
   });
+
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     try {
-      // 1. Send the data to your Express backend
-      const response = await fetch('http://localhost:5000/events', {
+      const response = await fetch('http://localhost:5000/api/events', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(form), // Convert the form state to a JSON string
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form)
       });
 
       if (response.ok) {
         const data = await response.json();
         console.log("Success:", data.message);
-        
-        // 2. Update local React state (optional, if you still need it)
-        addEvent(form); 
-        
-        // 3. Navigate away
         navigate('/events');
       } else {
         console.error('Failed to save event to the database');
@@ -54,31 +34,59 @@ function CreateEvent({ addEvent }: CreateEventProps) {
   };
 
   return (
-    <div className="glass-card">
-      <h2>Create Community Event</h2>
-      <form className="sdg-form" onSubmit={handleSubmit}>
-        <div className="input-group">
-          <label>Organizer Name</label>
-          <input required onChange={e => setForm({...form, organizer: e.target.value})} />
+    <div className="row justify-content-center">
+      <div className="col-md-7 col-lg-6">
+        <div className="card shadow">
+          <div className="card-body p-4">
+            <h2 className="card-title text-success mb-4">Create Community Event</h2>
+            <form onSubmit={handleSubmit}>
+              <div className="mb-3">
+                <label className="form-label fw-semibold">Organizer Name</label>
+                <input
+                  className="form-control"
+                  required
+                  onChange={e => setForm({ ...form, organizer: e.target.value })}
+                />
+              </div>
+              <div className="mb-3">
+                <label className="form-label fw-semibold">Event Title</label>
+                <input
+                  className="form-control"
+                  required
+                  onChange={e => setForm({ ...form, title: e.target.value })}
+                />
+              </div>
+              <div className="mb-3">
+                <label className="form-label fw-semibold">Date</label>
+                <input
+                  type="date"
+                  className="form-control"
+                  required
+                  onChange={e => setForm({ ...form, date: e.target.value })}
+                />
+              </div>
+              <div className="mb-3">
+                <label className="form-label fw-semibold">Venue</label>
+                <input
+                  className="form-control"
+                  required
+                  onChange={e => setForm({ ...form, venue: e.target.value })}
+                />
+              </div>
+              <div className="mb-3">
+                <label className="form-label fw-semibold">Description</label>
+                <textarea
+                  className="form-control"
+                  rows={4}
+                  required
+                  onChange={e => setForm({ ...form, description: e.target.value })}
+                />
+              </div>
+              <button type="submit" className="btn btn-success w-100">Submit Event</button>
+            </form>
+          </div>
         </div>
-        <div className="input-group">
-          <label>Event Title</label>
-          <input required onChange={e => setForm({...form, title: e.target.value})} />
-        </div>
-        <div className="input-group">
-          <label>Date</label>
-          <input type="date" required onChange={e => setForm({...form, date: e.target.value})} />
-        </div>
-        <div className="input-group">
-          <label>Venue</label>
-          <input required onChange={e => setForm({...form, venue: e.target.value})} />
-        </div>
-        <div className="input-group">
-          <label>Description</label>
-          <textarea required onChange={e => setForm({...form, description: e.target.value})} />
-        </div>
-        <button type="submit" className="btn-primary">Submit Event</button>
-      </form>
+      </div>
     </div>
   );
 }
