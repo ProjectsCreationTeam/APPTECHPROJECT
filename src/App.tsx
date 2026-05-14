@@ -1,73 +1,155 @@
-import { BrowserRouter, Routes, Route, Link, useLocation } from 'react-router-dom';
-import EventList from './Components/EventList';
-import CreateEvent from './Components/CreateEvent';
-import ContactMe from './Components/ContactMe';
+import { useState, useEffect } from 'react';
+import { HashRouter as Router, Routes, Route, Link} from 'react-router-dom';
+import axios from 'axios';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import './App.css';
+import CreateEvent from './Components/CreateEvents';
+import Contact from './Components/Contact';
 import HiddenWeb from './Components/HiddenWeb';
 import AdminDashboard from './Components/AdminDashboard';
-import { Globe } from 'lucide-react';// Replace standard emojis with clean icons
 
-const NavLink = ({ to, children }: { to: string; children: React.ReactNode }) => {
-  const location = useLocation();
-  const isActive = location.pathname === to;
+interface EventData {
+  _id: string;
+  eventName: string;
+  location: string;
+  date: string;
+  organizer: string;
+  description: string;
+}
+const EventList = () => {
+  const [events, setEvents] = useState<EventData[]>([]);
+  useEffect(() => {
+    fetchEvents();
+  }, []);
+  const fetchEvents = async () => {
+    try {
+      const response = await axios.get(
+        'http://localhost:5000/api/events'
+      );
+      setEvents(response.data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
   return (
-    <Link 
-      to={to} 
-      className={`relative pb-1 text-sm font-medium transition-colors duration-300 hover:text-white
-        ${isActive ? 'text-white' : 'text-slate-300'}`}
-    >
-      {children}
-      {isActive && (
-        <span className="absolute bottom-0 left-0 h-0.5 w-full bg-[#EDC4C7] rounded-full animate-pulse"></span>
-      )}
-    </Link>
-  );
-};
-
-export default function App() {
-  return (
-    <BrowserRouter>
-      <div className="flex flex-col min-h-screen">
-        {/* --- NAVIGATION BAR --- */}
-        <nav className="bg-[#3F2B66] text-white border-b border-slate-700 backdrop-blur-sm bg-[#3F2B66]/90 sticky top-0 z-50">
-          <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-            {/* Logo, matching the globe logo from the images */}
-            <Link to="/" className="group flex items-center gap-2">
-              <div className="h-8 w-8 bg-[#5D428D] rounded-lg flex items-center justify-center text-[#EDC4C7]">
-                <Globe size={18} />
-              </div>
-              <span className="text-2xl font-extrabold tracking-tighter text-white">
-                PORT<span className="text-[#EDC4C7]">FOLIO</span>
-              </span>
-            </Link>
-
-            {/* Right-aligned Navigation Links */}
-            <div className="flex items-center gap-8">
-              <NavLink to="/">Event List</NavLink>
-              <NavLink to="/create">Form Event</NavLink>
-              <NavLink to="/contact">Contact Me</NavLink>
+    <div className="container mt-5">
+      <h1 className="text-center text-primary mb-5">
+        Community Event Manager
+      </h1>
+      <div className="row">
+        {events.length === 0 ? (
+          <div className="col-12">
+            <div className="alert alert-info">
+              No Events Available
             </div>
           </div>
-        </nav>
-
-        <div className="flex-grow w-full max-w-7xl mx-auto px-6 py-12 md:py-16">
-          <main className="bg-[#5D428D]/90 rounded-3xl shadow-xl p-10 md:p-12 h-full">
-            <Routes>
-              <Route path="/" element={<EventList />} />
-              <Route path="/create" element={<CreateEvent/>} />
-              <Route path="/contact" element={<ContactMe />} />
-              <Route path="/hidden" element={<HiddenWeb />} />
-              <Route path="/admin" element={<AdminDashboard />} />
-            </Routes>
-          </main>
-        </div>
-
-        <footer className="dark-footer border-t border-slate-800 mt-20">
-          <div className="max-w-7xl mx-auto px-6 py-12 text-center text-sm">
-            <p>© {new Date().getFullYear()} Event Hub Technologies Global. All rights reserved.</p>
-            <p className="text-xs text-slate-500 mt-2">Design aesthetic inspired by glossy-gradient modernism.</p>
-          </div>
-        </footer>
+        ) : (
+          events.map((event) => (
+            <div
+              key={event._id}
+              className="col-md-4 mb-4"
+            >
+              <div className="card shadow-lg border-0 h-100">
+                <div className="card-body">
+                  <h4 className="text-primary">
+                    {event.eventName}
+                  </h4>
+                  <p>
+                    <strong>Location:</strong>{" "}
+                    {event.location}
+                  </p>
+                  <p>
+                    <strong>Date:</strong>{" "}
+                    {event.date}
+                  </p>
+                  <p>
+                    {event.description}
+                  </p>
+                </div>
+                <div className="card-footer">
+                  <small>
+                    Organized by {event.organizer}
+                  </small>
+                </div>
+              </div>
+            </div>
+          ))
+        )}
       </div>
-    </BrowserRouter>
+    </div>
+  );
+};
+function App() {
+  return (
+    <Router>
+      <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div className="container">
+          <Link
+            className="navbar-brand fw-bold"
+            to="/"
+          >
+            Event Manager
+          </Link>
+          <div className="navbar-nav">
+            <Link
+              className="nav-link"
+              to="/"
+            >
+              EventList
+            </Link>
+            <Link
+              className="nav-link"
+              to="/create"
+            >
+              Create Event
+            </Link>
+
+            <Link
+              className="nav-link"
+              to="/contact"
+            >
+              Contact
+            </Link>
+            <Link
+              className="nav-link"
+              to="/hiddenweb"
+            >
+              HiddenWeb
+            </Link>
+
+            <Link
+              className="nav-link"
+              to="/admin"
+            >
+              AdminDashboard
+            </Link>
+          </div>
+        </div>
+      </nav>
+      <Routes>
+        <Route
+          path="/"
+          element={<EventList />}
+        />
+        <Route
+          path="/create"
+          element={<CreateEvent />}
+        />
+        <Route
+          path="/contact"
+          element={<Contact />}
+        />
+        <Route
+          path="/hiddenweb"
+          element={<HiddenWeb />}
+        />
+        <Route
+          path="/admin"
+          element={<AdminDashboard />}
+        />
+      </Routes>
+    </Router>
   );
 }
+
+export default App;
