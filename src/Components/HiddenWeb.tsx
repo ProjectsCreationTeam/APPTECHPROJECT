@@ -1,47 +1,25 @@
 
-
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-
-function HiddenWeb() {
-
-  const [password, setPassword] = useState("");
-
-  const navigate = useNavigate();
-
-  const loginAdmin = () => {
-
-    if(password === "admin123"){
-
-      navigate("/admin");
-
-    }else{
-
-      alert("Wrong Password");
-    }
-  };
+const HiddenWeb = () => {
 
   return (
-    <div className="hidden-page">
 
-      <div className="hidden-box">
+    <div className="container mt-5">
 
-        <h1>Hidden Website</h1>
+      <div className="card bg-dark text-light shadow p-4">
 
-        <input
-          type="password"
-          placeholder="Enter Password"
-          onChange={(e)=>setPassword(e.target.value)}
-        />
+        <h2 className="text-warning">
+          Hidden Web
+        </h2>
 
-        <button onClick={loginAdmin}>
-          Login
-        </button>
+        <p>
+          This is a private hidden page.
+        </p>
 
       </div>
 
     </div>
+
   );
-}
+};
 
 export default HiddenWeb;
