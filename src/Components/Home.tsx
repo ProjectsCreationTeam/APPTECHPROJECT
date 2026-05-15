@@ -8,8 +8,9 @@ function Home() {
             <h1 className="card-title text-success">Sustainable Cities</h1>
             <p className="card-text lead mt-3">
               Building resilient, inclusive, and sustainable urban environments for the future.
-              This can help to our community to make the world peace.
-              Voluntary and participate on each events.
+              This can help our community more organized.
+              Voluntary participation on each events are encouraged.
+              Add events and look at events that interests you.
             </p>
           </div>
         </div>
