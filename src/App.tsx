@@ -40,7 +40,7 @@ export default function App() {
 
         <main className="container my-5 flex-grow-1">
           <Routes>
-            <Route path="/" element={<Home />} />
+            <Route path="*" element={<Home />} />
             <Route path="/create" element={<CreateEvent />} />
             <Route path="/events" element={<EventList />} />
             <Route path="/contact" element={<Contact />} />
