@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 interface Message {
   _id: string;
@@ -9,6 +10,7 @@ interface Message {
 
 function AdminDashboard() {
   const [messages, setMessages] = useState<Message[]>([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetch('https://apptechproject.onrender.com/api/messages')
@@ -40,7 +42,7 @@ function AdminDashboard() {
           <div className="card-body p-4">
             <div className="d-flex justify-content-between align-items-center mb-4">
               <h2 className="card-title text-success mb-0">Admin Control Center</h2>
-              <button onClick={() => window.location.href = '/'} className="btn btn-dark">Log Out</button>
+              <button onClick={() => navigate('/')} className="btn btn-dark">Log Out</button>
             </div>
             <div className="table-responsive">
               <table className="table table-striped table-bordered align-middle">
