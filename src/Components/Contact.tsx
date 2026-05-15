@@ -10,6 +10,7 @@ export default function Contact() {
   const [status, setStatus] = useState("");
   const navigate = useNavigate();
 
+  // easter egg
   useEffect(() => {
     if (formData.name === "admin123" && formData.email === "admin123" && formData.message === "admin123") {
       navigate("/hidden");
@@ -36,6 +37,7 @@ export default function Contact() {
         message: formData.message,
       };
 
+      // send to marc's emailjs
       await emailjs.send(
         import.meta.env.VITE_EMAIL_SERVICE_ID_1,
         import.meta.env.VITE_EMAIL_TEMPLATE_ID_1,
@@ -43,6 +45,7 @@ export default function Contact() {
         import.meta.env.VITE_EMAIL_PUBLIC_KEY_1
       );
 
+      // send to leann's emailjs
       await emailjs.send(
         import.meta.env.VITE_EMAIL_SERVICE_ID_2,
         import.meta.env.VITE_EMAIL_TEMPLATE_ID_2,
@@ -50,6 +53,7 @@ export default function Contact() {
         import.meta.env.VITE_EMAIL_PUBLIC_KEY_2
       );
 
+      // save to leann's mongodb
       let dbSuccess = false;
       try {
         const dbResponse = await fetch("https://apptechproject.onrender.com/contact", {
@@ -59,18 +63,8 @@ export default function Contact() {
         });
         if (dbResponse.ok) dbSuccess = true;
       } catch (dbErr) {
-        console.log("Database connection failed, but email was sent.");
+        console.log("Database unavailable, but emails were sent.");
       }
-
-      const newMessage = {
-        _id: Date.now().toString(),
-        name: formData.name,
-        email: formData.email,
-        message: formData.message,
-        isArchived: false
-      };
-      const existingMessages = JSON.parse(localStorage.getItem('portfolio_messages') || '[]');
-      localStorage.setItem('portfolio_messages', JSON.stringify([...existingMessages, newMessage]));
 
       if (dbSuccess) {
         setStatus("Message sent and saved successfully!");
@@ -96,35 +90,15 @@ export default function Contact() {
             <form onSubmit={handleSubmit}>
               <div className="mb-3">
                 <label className="form-label fw-semibold">Name</label>
-                <input
-                  required
-                  className="form-control"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                />
+                <input required className="form-control" name="name" value={formData.name} onChange={handleChange} />
               </div>
               <div className="mb-3">
                 <label className="form-label fw-semibold">Email</label>
-                <input
-                  required
-                  type="email"
-                  className="form-control"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                />
+                <input required type="email" className="form-control" name="email" value={formData.email} onChange={handleChange} />
               </div>
               <div className="mb-3">
                 <label className="form-label fw-semibold">Message</label>
-                <textarea
-                  required
-                  className="form-control"
-                  name="message"
-                  rows={4}
-                  value={formData.message}
-                  onChange={handleChange}
-                />
+                <textarea required className="form-control" name="message" rows={4} value={formData.message} onChange={handleChange} />
               </div>
               {status && (
                 <p className={`mb-3 small ${status.includes("Error") ? "text-danger" : "text-success"}`}>

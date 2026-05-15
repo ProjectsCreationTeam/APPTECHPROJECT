@@ -25,7 +25,6 @@ function EventList() {
         <div className="card shadow mb-4">
           <div className="card-body p-4">
             <h2 className="card-title text-success mb-4">Sustainable Community Events</h2>
-
             {events.length === 0 ? (
               <p className="text-muted text-center py-3">No events yet. Be the first to create one!</p>
             ) : (
@@ -33,9 +32,7 @@ function EventList() {
                 <div key={ev._id} className="card mb-3 border-success">
                   <div className="card-body text-center">
                     <h4 className="card-title text-success">{ev.title}</h4>
-                    <p className="mb-1">
-                      <strong>Organizer:</strong> {ev.organizer} &nbsp;|&nbsp; <strong>Venue:</strong> {ev.venue}
-                    </p>
+                    <p className="mb-1"><strong>Organizer:</strong> {ev.organizer} &nbsp;|&nbsp; <strong>Venue:</strong> {ev.venue}</p>
                     <p className="mb-2"><strong>Date:</strong> {ev.date}</p>
                     <hr />
                     <p className="card-text text-muted">{ev.description}</p>
@@ -43,7 +40,6 @@ function EventList() {
                 </div>
               ))
             )}
-
           </div>
         </div>
       </div>

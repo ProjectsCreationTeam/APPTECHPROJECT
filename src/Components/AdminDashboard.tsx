@@ -40,11 +40,8 @@ function AdminDashboard() {
           <div className="card-body p-4">
             <div className="d-flex justify-content-between align-items-center mb-4">
               <h2 className="card-title text-success mb-0">Admin Control Center</h2>
-              <button onClick={() => window.location.href = '/'} className="btn btn-dark">
-                Log Out
-              </button>
+              <button onClick={() => window.location.href = '/'} className="btn btn-dark">Log Out</button>
             </div>
-
             <div className="table-responsive">
               <table className="table table-striped table-bordered align-middle">
                 <thead className="table-success">
@@ -67,9 +64,7 @@ function AdminDashboard() {
                         <td>{m.email}</td>
                         <td>{m.message}</td>
                         <td>
-                          <button onClick={() => deleteMsg(m._id)} className="btn btn-danger btn-sm">
-                            Delete
-                          </button>
+                          <button onClick={() => deleteMsg(m._id)} className="btn btn-danger btn-sm">Delete</button>
                         </td>
                       </tr>
                     ))
@@ -77,13 +72,9 @@ function AdminDashboard() {
                 </tbody>
               </table>
             </div>
-
             {messages.length > 0 && (
-              <button onClick={deleteAll} className="btn btn-danger mt-2">
-                Delete All
-              </button>
+              <button onClick={deleteAll} className="btn btn-danger mt-2">Delete All</button>
             )}
-
           </div>
         </div>
       </div>

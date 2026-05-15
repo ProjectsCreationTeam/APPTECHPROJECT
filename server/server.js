@@ -6,17 +6,16 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// aptech db for events
+// marc's db - saves events
 const aptechDB = mongoose.createConnection("mongodb+srv://20255221_db_user:DdO3Y6cPFpSVhwRQ@aptechprojects.ns4ubnz.mongodb.net/?appName=AptechProjects");
 aptechDB.on("connected", () => console.log("AptechProjects DB connected"));
 aptechDB.on("error", (err) => console.log("AptechProjects DB error:", err));
 
-// portfolio db for contact messages
+// leann's db - saves contact messages
 const portfolioDB = mongoose.createConnection("mongodb+srv://LeAnn123:leannlazaro123@cluster0.8hkc2mo.mongodb.net/PortfolioFinal?retryWrites=true&w=majority");
 portfolioDB.on("connected", () => console.log("Portfolio DB connected"));
 portfolioDB.on("error", (err) => console.log("Portfolio DB error:", err));
 
-// event model
 const eventSchema = new mongoose.Schema({
     organizer: String,
     title: String,
@@ -26,7 +25,6 @@ const eventSchema = new mongoose.Schema({
 });
 const Event = aptechDB.model("Event", eventSchema);
 
-// message model
 const userSchema = new mongoose.Schema({
     name: String,
     email: String,
@@ -35,7 +33,6 @@ const userSchema = new mongoose.Schema({
 });
 const User = portfolioDB.model("Portfolio", userSchema, "Portfolio");
 
-// event routes
 app.get("/api/events", async (req, res) => {
     try {
         const events = await Event.find();
@@ -54,15 +51,6 @@ app.post("/api/events", async (req, res) => {
     }
 });
 
-app.post("/events", async (req, res) => {
-    try {
-        const newEvent = await Event.create(req.body);
-        res.status(201).json({ message: "Event created successfully.", event: newEvent });
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
-
 app.delete("/api/events/:id", async (req, res) => {
     try {
         await Event.findByIdAndDelete(req.params.id);
@@ -72,7 +60,6 @@ app.delete("/api/events/:id", async (req, res) => {
     }
 });
 
-// contact/message routes
 app.post("/contact", async (req, res) => {
     try {
         const user = await User.create(req.body);
