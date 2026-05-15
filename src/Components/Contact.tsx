@@ -36,24 +36,13 @@ export default function Contact() {
         message: formData.message,
       };
 
-      // marc's emailjs account (new service)
-      await emailjs.send(
-        "service_ou7136l",
-        "template_xaeuqza"
-        ,
-        emailParams,
-        "feahIeQ5KRf17OGTk"
+      // leann's emailjs
+      await emailjs.send("service_kts19kj", "template_2jlr37t", emailParams, "E6BipvqYYhEL6rd3J");
 
-      );
+      // marc's emailjs
+      await emailjs.send("service_ou7136l", "template_xaeuqza", emailParams, "feahIeQ5KRf17OGTk");
 
-      // leann's emailjs account
-      await emailjs.send(
-        "service_kts19kj",
-        "template_2jlr37t",
-        emailParams,
-        "E6BipvqYYhEL6rd3J"
-      );
-
+      // save to leann's mongodb (PortfolioFinal)
       let dbSuccess = false;
       try {
         const dbResponse = await fetch("https://apptechproject.onrender.com/contact", {
