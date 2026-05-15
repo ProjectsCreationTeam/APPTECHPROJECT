@@ -15,7 +15,7 @@ export default function App() {
 
         <nav className="navbar navbar-expand-lg navbar-dark bg-success shadow-sm">
           <div className="container">
-            <span className="navbar-brand fw-bold">🏙 SDG 11: Sustainable Communities</span>
+            <span className="navbar-brand fw-bold">Events Manager</span>
             <button
               className="navbar-toggler"
               type="button"
